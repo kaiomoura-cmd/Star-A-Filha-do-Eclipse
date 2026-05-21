@@ -7,7 +7,13 @@ public class Movement : MonoBehaviour
     public float jumpForce = 20f;
     public bool isGrounded = false;
     public float gravity = -10f;
-    
+
+    [Header("Configurações Visuais (Sprites)")]
+    public SpriteRenderer renderizadorSprite;
+    public Sprite spriteParado;
+    public Sprite spriteAndando;
+    public Sprite spritePulando;
+
     public float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
 
@@ -16,10 +22,10 @@ public class Movement : MonoBehaviour
     public float input;
 
     public float sensibility = 0.7f;
-    
+
     public float jumpBufferTime = 0.2f;
     private float jumpBufferCounter;
-    
+
     private bool isWallSliding;
     private float wallSlidingSpeed = 2f;
 
@@ -33,12 +39,22 @@ public class Movement : MonoBehaviour
     [SerializeField] private LayerMask wallLayer;
 
     private Rigidbody rb;
-    
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
+
+        if (renderizadorSprite == null)
+        {
+            renderizadorSprite = GetComponent<SpriteRenderer>();
+        }
+    }
+
+    void Update()
+    {
+        AtualizarSprite();
     }
 
     void FixedUpdate()
@@ -71,7 +87,8 @@ public class Movement : MonoBehaviour
         WallSlide();
         WallJump();
 
-        if (!isWallJumping)
+        // CORREÇÃO 1: Impede o jogador de virar o corpo enquanto escorrega na parede
+        if (!isWallJumping && !isWallSliding)
         {
             Flip();
         }
@@ -79,10 +96,41 @@ public class Movement : MonoBehaviour
         JumpHandler();
     }
 
+    private void AtualizarSprite()
+    {
+        if (renderizadorSprite == null) return;
+
+        if (!isGrounded && !isWallSliding && spritePulando != null)
+        {
+            renderizadorSprite.sprite = spritePulando;
+        }
+        else
+        {
+            if (Mathf.Abs(input) > 0.1f && spriteAndando != null)
+            {
+                renderizadorSprite.sprite = spriteAndando;
+            }
+            else if (spriteParado != null)
+            {
+                renderizadorSprite.sprite = spriteParado;
+            }
+        }
+    }
+
     public void Flip()
     {
-        if (input > 0) transform.localScale = new Vector3(1, 2, 1);
-        else if (input < 0) transform.localScale = new Vector3(-1, 2, 1);
+        if (input > 0 && transform.localScale.x < 0)
+        {
+            Vector3 scaler = transform.localScale;
+            scaler.x = Mathf.Abs(scaler.x);
+            transform.localScale = scaler;
+        }
+        else if (input < 0 && transform.localScale.x > 0)
+        {
+            Vector3 scaler = transform.localScale;
+            scaler.x = -Mathf.Abs(scaler.x);
+            transform.localScale = scaler;
+        }
     }
 
     public void OnMove(InputValue value)
@@ -93,13 +141,14 @@ public class Movement : MonoBehaviour
     public void OnJump()
     {
         jumpBufferCounter = jumpBufferTime;
-        if(wallJumpingCounter > 0f)
+        if (wallJumpingCounter > 0f)
         {
             isWallJumping = true;
             rb.linearVelocity = new Vector3(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
             wallJumpingCounter = 0f;
 
-            if(transform.localScale.x != wallJumpingDirection)
+            // CORREÇÃO 3: Compara apenas a direção (+ ou -), ignorando o tamanho da escala
+            if (Mathf.Sign(transform.localScale.x) != Mathf.Sign(wallJumpingDirection))
             {
                 Vector3 localScale = transform.localScale;
                 localScale.x *= -1f;
@@ -136,7 +185,7 @@ public class Movement : MonoBehaviour
 
     private void WallSlide()
     {
-        if(IsWalled() && !isGrounded && input != 0f)
+        if (IsWalled() && !isGrounded && input != 0f)
         {
             isWallSliding = true;
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, Mathf.Clamp(rb.linearVelocity.y, -wallSlidingSpeed, float.MaxValue));
@@ -152,7 +201,8 @@ public class Movement : MonoBehaviour
         if (isWallSliding)
         {
             isWallJumping = false;
-            wallJumpingDirection = -transform.localScale.x;
+            // CORREÇÃO 2: Garante que a direção seja apenas 1 ou -1, mesmo com a escala em 2
+            wallJumpingDirection = -Mathf.Sign(transform.localScale.x);
             wallJumpingCounter = wallJumpingTime;
             CancelInvoke(nameof(StopWallJumping));
         }
@@ -166,9 +216,9 @@ public class Movement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            foreach(ContactPoint contact in collision.contacts)
+            foreach (ContactPoint contact in collision.contacts)
             {
-                if(contact.normal.y > sensibility)
+                if (contact.normal.y > sensibility)
                 {
                     isGrounded = true;
                     return;

@@ -6,6 +6,13 @@ public class PlayerAttack : MonoBehaviour
 {
     public enum PlayerMode { Luz, Sombra }
 
+    [Header("Animação de Ataque")]
+    public SpriteRenderer renderizadorSprite;
+    public Sprite spriteAtaque1;
+    public Sprite spriteAtaque2;
+    public Movement scriptMovimento; // Para acessar a trava
+    public float tempoEntreFrames = 0.1f; // Quão rápido ele muda do frame 1 pro 2
+
     [Header("Modo de Jogo")]
     public PlayerMode currentMode = PlayerMode.Luz;
 
@@ -78,6 +85,8 @@ public class PlayerAttack : MonoBehaviour
     // Método para realizar o ataque baseado no modo atual
     public void PerformAttack()
     {
+        StartCoroutine(AnimarAtaque());
+
         if (currentMode == PlayerMode.Luz)
         {
             TriggerLightAttack();
@@ -234,5 +243,27 @@ public class PlayerAttack : MonoBehaviour
 
         shadowAttackSource.intensity = 0f;
         Debug.Log("Ataque de Sombra 3D concluído!");
+    }
+    IEnumerator AnimarAtaque()
+    {
+        // 1. Trava o script de movimento
+        if (scriptMovimento != null) scriptMovimento.isAttacking = true;
+
+        // 2. Coloca a pose 1 (Preparação)
+        if (renderizadorSprite != null && spriteAtaque1 != null)
+            renderizadorSprite.sprite = spriteAtaque1;
+
+        // Espera uma fração de segundo
+        yield return new WaitForSeconds(tempoEntreFrames);
+
+        // 3. Coloca a pose 2 (Impacto do golpe)
+        if (renderizadorSprite != null && spriteAtaque2 != null)
+            renderizadorSprite.sprite = spriteAtaque2;
+
+        // Espera o ataque terminar (você pode usar sua variável lightAttackDuration aqui se quiser)
+        yield return new WaitForSeconds(0.2f);
+
+        // 4. Destrava o movimento para ele voltar a ficar "Parado"
+        if (scriptMovimento != null) scriptMovimento.isAttacking = false;
     }
 }

@@ -1,8 +1,12 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
+    [Header("Estados do Personagem")]
+    public bool isAttacking = false;
+
     [Header("Movimento Horizontal")]
     public float speed = 5f;
     public float groundAcceleration = 0.8f;
@@ -29,6 +33,9 @@ public class Movement : MonoBehaviour
     public Sprite spriteParado;
     public Sprite spriteAndando;
     public Sprite spritePulando;
+    public Sprite spriteDash1;
+    public Sprite spriteDash2;
+    public float tempoEntreFramesDash = 0.1f;
 
     [Header("Configurações do Wall Jump")]
     [SerializeField] private Transform wallCheck;
@@ -193,6 +200,8 @@ public class Movement : MonoBehaviour
     // ==========================================
     private void StartDash()
     {
+        StartCoroutine(AnimarDash());
+
         isDashing = true;
 
         if (IsInShadowMode())
@@ -533,6 +542,8 @@ public class Movement : MonoBehaviour
     // ==========================================
     private void AtualizarSprite()
     {
+        if (isAttacking || isDashing) return;
+
         if (renderizadorSprite == null) return;
 
         if (!isGrounded && !isWallSliding && spritePulando != null)
@@ -569,6 +580,23 @@ public class Movement : MonoBehaviour
             scaler.x = -Mathf.Abs(scaler.x);
             transform.localScale = scaler;
         }
+    }
+
+    private IEnumerator AnimarDash()
+    {
+        // 1. Coloca a pose inicial do Dash (impulso)
+        if (renderizadorSprite != null && spriteDash1 != null)
+            renderizadorSprite.sprite = spriteDash1;
+
+        // 2. Espera a fração de segundo
+        yield return new WaitForSeconds(tempoEntreFramesDash);
+
+        // 3. Coloca a pose 2 (deslizando)
+        if (renderizadorSprite != null && spriteDash2 != null)
+            renderizadorSprite.sprite = spriteDash2;
+
+        // Não precisamos destravar manualmente aqui, 
+        // pois a função StopDash() do seu código já faz o isDashing virar false!
     }
 
     // ==========================================

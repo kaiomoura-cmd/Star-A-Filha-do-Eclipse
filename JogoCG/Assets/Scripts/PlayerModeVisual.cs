@@ -7,6 +7,25 @@ using UnityEngine;
 /// </summary>
 public class PlayerModeVisual : MonoBehaviour
 {
+    [Header("Sprites de Luz")]
+    public Sprite luzParado;
+    public Sprite luzAndando;
+    public Sprite luzPulando;
+    public Sprite luzDash1;
+    public Sprite luzDash2;
+    public Sprite luzAtaque1;
+    public Sprite luzAtaque2;
+
+    [Header("Sprites de Sombra")]
+    public Sprite sombraParado;
+    public Sprite sombraAndando;
+    public Sprite sombraPulando;
+    public Sprite sombraPulando2;
+    public Sprite sombraAtaque1;
+    public Sprite sombraAtaque2;
+
+    private Movement playerMovement;
+
     [Header("Cores do Sprite")]
     [Tooltip("Tinta aplicada ao sprite no modo Luz")]
     public Color lightModeTint = new Color(1f, 0.97f, 0.85f, 1f);
@@ -47,6 +66,7 @@ public class PlayerModeVisual : MonoBehaviour
     {
         playerAttack = GetComponent<PlayerAttack>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        playerMovement = GetComponent<Movement>();
 
         if (playerAttack == null)
         {
@@ -134,12 +154,41 @@ public class PlayerModeVisual : MonoBehaviour
             tintTo = lightModeTint;
             auraColorTo = lightAuraColor;
             auraIntensityTo = lightAuraIntensity;
+
+            // INJETA OS SPRITES DE LUZ DURANTE A TRANSIÇÃO
+            if (playerMovement != null)
+            {
+                playerMovement.spriteParado = luzParado;
+                playerMovement.spriteAndando = luzAndando;
+                playerMovement.spritePulando = luzPulando;
+                playerMovement.spriteDash1 = luzDash1;
+                playerMovement.spriteDash2 = luzDash2;
+            }
+            if (playerAttack != null)
+            {
+                playerAttack.spriteAtaque1 = luzAtaque1;
+                playerAttack.spriteAtaque2 = luzAtaque2;
+            }
         }
         else
         {
             tintTo = shadowModeTint;
             auraColorTo = shadowAuraColor;
             auraIntensityTo = shadowAuraIntensity;
+
+            // INJETA OS SPRITES DE SOMBRA DURANTE A TRANSIÇÃO
+            if (playerMovement != null)
+            {
+                playerMovement.spriteParado = sombraParado;
+                playerMovement.spriteAndando = sombraAndando;
+                playerMovement.spritePulando = sombraPulando;
+                playerMovement.spritePulando = sombraPulando2;
+            }
+            if (playerAttack != null)
+            {
+                playerAttack.spriteAtaque1 = sombraAtaque1;
+                playerAttack.spriteAtaque2 = sombraAtaque2;
+            }
         }
     }
 
@@ -153,6 +202,21 @@ public class PlayerModeVisual : MonoBehaviour
                 auraLight.color = lightAuraColor;
                 auraLight.intensity = lightAuraIntensity;
             }
+
+            // TROCA PARA OS SPRITES DE LUZ
+            if (playerMovement != null)
+            {
+                playerMovement.spriteParado = luzParado;
+                playerMovement.spriteAndando = luzAndando;
+                playerMovement.spritePulando = luzPulando;
+                playerMovement.spriteDash1 = luzDash1;
+                playerMovement.spriteDash2 = luzDash2;
+            }
+            if (playerAttack != null)
+            {
+                playerAttack.spriteAtaque1 = luzAtaque1;
+                playerAttack.spriteAtaque2 = luzAtaque2;
+            }
         }
         else
         {
@@ -161,6 +225,20 @@ public class PlayerModeVisual : MonoBehaviour
             {
                 auraLight.color = shadowAuraColor;
                 auraLight.intensity = shadowAuraIntensity;
+            }
+
+            // TROCA PARA OS SPRITES DE SOMBRA
+            if (playerMovement != null)
+            {
+                playerMovement.spriteParado = sombraParado;
+                playerMovement.spriteAndando = sombraAndando;
+                playerMovement.spritePulando = sombraPulando;
+                playerMovement.spritePulando = sombraPulando2;
+            }
+            if (playerAttack != null)
+            {
+                playerAttack.spriteAtaque1 = sombraAtaque1;
+                playerAttack.spriteAtaque2 = sombraAtaque2;
             }
         }
     }

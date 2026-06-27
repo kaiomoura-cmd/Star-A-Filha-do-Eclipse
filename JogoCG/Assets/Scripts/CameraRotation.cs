@@ -1,18 +1,32 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Cinemachine;
-using UnityEngine.InputSystem; // Biblioteca necessária para ler o teclado e mouse no novo sistema
+using UnityEngine.InputSystem;
 
 public class AtivarCutscene : MonoBehaviour
 {
-    [Header("Arraste a CinemachineCamera aqui")]
+    [Header("Configurações da Câmera")]
     public CinemachineCamera cameraDaCutscene;
-
-    [Header("Velocidade do movimento no trilho")]
     public float velocidadeDaCamera = 0.5f;
+
+    [Header("Referências da Personagem")]
+    public SpriteRenderer renderizadorPlayer;
+    public Movement scriptMovimento;
+
+    [Header("Configuração dos Sprites")]
+    public Sprite spriteCostas;
+    public Sprite spriteOriginalLuz;
+
+    [Range(0f, 1f)]
+    [Tooltip("Em qual ponto do trilho (0 a 1) a personagem deve virar de costas? Ex: 0.5 é metade do caminho.")]
+    public float pontoDaVirada = 0.5f;
 
     private bool jaMostrou = false;
     private CinemachineSplineDolly splineDolly;
+    private bool mudouParaCostas = false;
+
+    // Variável para lembrar a rotação original do jogador
+    private Quaternion rotacaoOriginal;
 
     void Start()
     {
@@ -36,37 +50,89 @@ public class AtivarCutscene : MonoBehaviour
     {
         if (splineDolly == null) yield break;
 
+        // Guarda a rotação que o jogador estava antes da cutscene começar
+        if (renderizadorPlayer != null)
+        {
+            rotacaoOriginal = renderizadorPlayer.transform.rotation;
+        }
+
+        // 1. Trava o movimento e as animações padrão da personagem antes da cena começar
+        if (scriptMovimento != null)
+        {
+            scriptMovimento.isAttacking = true;
+        }
+
         // Zera a posição e liga a câmera cinematográfica
         splineDolly.CameraPosition = 0;
+        mudouParaCostas = false;
         cameraDaCutscene.gameObject.SetActive(true);
 
-        // 1. Faz a câmera andar suavemente pelo trilho até o final (posição 1.0)
+        // 2. Faz a câmera andar suavemente pelo trilho até o final (posição 1.0)
         while (splineDolly.CameraPosition < 1f)
         {
             splineDolly.CameraPosition += velocidadeDaCamera * Time.deltaTime;
+
+            // CHECAGEM DA VIRADA: Se a câmera passou do ponto estipulado, troca o sprite
+            if (!mudouParaCostas && splineDolly.CameraPosition >= pontoDaVirada)
+            {
+                mudouParaCostas = true;
+                if (renderizadorPlayer != null && spriteCostas != null)
+                {
+                    renderizadorPlayer.sprite = spriteCostas;
+                }
+            }
+
+            // NOVA LÓGICA DE ROTAÇÃO (Anti-Invisibilidade):
+            // Se já mudou para as costas, força o plano do sprite a acompanhar o ângulo Y da câmera
+            if (mudouParaCostas && renderizadorPlayer != null && cameraDaCutscene != null)
+            {
+                float anguloYDaCamera = cameraDaCutscene.transform.eulerAngles.y;
+
+                // Aplica a rotação apenas no eixo Y para o personagem não inclinar para frente ou para os lados
+                renderizadorPlayer.transform.rotation = Quaternion.Euler(0, anguloYDaCamera, 0);
+            }
+
             yield return null;
         }
 
-        // 2. A câmera para e fica aguardando o input do jogador
+        // 3. A câmera para e fica aguardando o input do jogador
         bool apertouBotao = false;
         while (!apertouBotao)
         {
-            // Checa se apertou qualquer tecla do teclado
+            // Mantém o sprite alinhado mesmo enquanto espera o input (caso a câmera balance levemente)
+            if (mudouParaCostas && renderizadorPlayer != null && cameraDaCutscene != null)
+            {
+                float anguloYDaCamera = cameraDaCutscene.transform.eulerAngles.y;
+                renderizadorPlayer.transform.rotation = Quaternion.Euler(0, anguloYDaCamera, 0);
+            }
+
             if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
             {
                 apertouBotao = true;
             }
-            // Checa se clicou com o botão esquerdo do mouse
             else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 apertouBotao = true;
             }
 
-            // Pausa a rotina até o próximo frame para não travar o jogo
             yield return null;
         }
 
-        // 3. O jogador apertou o botão! Desliga a câmera e volta para o gameplay normal
+        // 4. O jogador apertou o botão! Restaura os sprites, devolve a rotação original e o controle
+        if (renderizadorPlayer != null)
+        {
+            if (spriteOriginalLuz != null)
+                renderizadorPlayer.sprite = spriteOriginalLuz;
+
+            // Devolve a rotação que ele tinha antes da cutscene começar para o gameplay não bugar
+            renderizadorPlayer.transform.rotation = rotacaoOriginal;
+        }
+
+        if (scriptMovimento != null)
+        {
+            scriptMovimento.isAttacking = false;
+        }
+
         cameraDaCutscene.gameObject.SetActive(false);
     }
 }

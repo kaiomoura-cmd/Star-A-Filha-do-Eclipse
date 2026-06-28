@@ -9,7 +9,7 @@ public class AtivarCutscene : MonoBehaviour
     public CinemachineCamera cameraDaCutscene;
     public float velocidadeDaCamera = 0.5f;
 
-    [Header("Referências da Personagem")]
+    [Header("Referências da Personagem (Preenchidas Automaticamente)")]
     public SpriteRenderer renderizadorPlayer;
     public Movement scriptMovimento;
 
@@ -39,9 +39,20 @@ public class AtivarCutscene : MonoBehaviour
 
     void OnTriggerEnter(Collider outro)
     {
+        // Se quem encostou no cubo tem a tag "Player" e a cutscene ainda não rodou
         if (outro.CompareTag("Player") && !jaMostrou)
         {
             jaMostrou = true;
+
+            // Captura os componentes da personagem que colidiu
+            renderizadorPlayer = outro.GetComponent<SpriteRenderer>();
+            scriptMovimento = outro.GetComponent<Movement>();
+
+            if (cameraDaCutscene != null)
+            {
+                cameraDaCutscene.LookAt = outro.transform;
+            }
+
             StartCoroutine(TocarCutscene());
         }
     }
@@ -60,6 +71,7 @@ public class AtivarCutscene : MonoBehaviour
         if (scriptMovimento != null)
         {
             scriptMovimento.isAttacking = true;
+            scriptMovimento.enabled = false; // Desliga o script de movimento para evitar o bug do Dash
         }
 
         // Zera a posição e liga a câmera cinematográfica
@@ -82,8 +94,8 @@ public class AtivarCutscene : MonoBehaviour
                 }
             }
 
-            // NOVA LÓGICA DE ROTAÇÃO (Anti-Invisibilidade):
-            // Se já mudou para as costas, força o plano do sprite a acompanhar o ângulo Y da câmera
+            // ROTAÇÃO (Anti-Invisibilidade):
+            // Força o plano do sprite a acompanhar o ângulo Y da câmera
             if (mudouParaCostas && renderizadorPlayer != null && cameraDaCutscene != null)
             {
                 float anguloYDaCamera = cameraDaCutscene.transform.eulerAngles.y;
@@ -99,7 +111,7 @@ public class AtivarCutscene : MonoBehaviour
         bool apertouBotao = false;
         while (!apertouBotao)
         {
-            // Mantém o sprite alinhado mesmo enquanto espera o input (caso a câmera balance levemente)
+            // Mantém o sprite alinhado mesmo enquanto espera o input
             if (mudouParaCostas && renderizadorPlayer != null && cameraDaCutscene != null)
             {
                 float anguloYDaCamera = cameraDaCutscene.transform.eulerAngles.y;
@@ -124,13 +136,14 @@ public class AtivarCutscene : MonoBehaviour
             if (spriteOriginalLuz != null)
                 renderizadorPlayer.sprite = spriteOriginalLuz;
 
-            // Devolve a rotação que ele tinha antes da cutscene começar para o gameplay não bugar
+            // Devolve a rotação que ele tinha antes da cutscene começar
             renderizadorPlayer.transform.rotation = rotacaoOriginal;
         }
 
         if (scriptMovimento != null)
         {
             scriptMovimento.isAttacking = false;
+            scriptMovimento.enabled = true; // Religa o script de movimento, devolvendo o controle
         }
 
         cameraDaCutscene.gameObject.SetActive(false);

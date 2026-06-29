@@ -242,17 +242,6 @@
                 },
                 {
                     "name": "",
-                    "id": "bc7c5507-1fc6-4baa-973e-69c337968302",
-                    "path": "<Keyboard>/#(W)",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "e106f6a1-56aa-4fd1-bb76-f6987d27decd",
                     "path": "<Keyboard>/space",
                     "interactions": "",
@@ -297,6 +286,17 @@
                 },
                 {
                     "name": "",
+                    "id": "e5f6a7b8-c9d0-4e1f-a2b3-c4d5e6f7a8b9",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "e93f87b2-132d-456c-8ab2-14438bde6312",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
@@ -308,8 +308,8 @@
                 },
                 {
                     "name": "",
-                    "id": "893d7c56-beef-4e2b-b4a1-094dcd87234a",
-                    "path": "<Keyboard>/r",
+                    "id": "a1b2c3d4-e5f6-4a78-b90c-1d2e3f4a5b6c",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -321,6 +321,17 @@
                     "name": "",
                     "id": "7ac2b6f1-a128-4903-b0f3-8f0a1c1d1a1b",
                     "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d3c4a5b6-e7f8-4a90-b1c2-d3e4f5a6b7c8",
+                    "path": "<Keyboard>/c",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

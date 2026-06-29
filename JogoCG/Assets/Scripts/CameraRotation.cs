@@ -5,27 +5,27 @@ using UnityEngine.InputSystem;
 
 public class AtivarCutscene : MonoBehaviour
 {
-    [Header("Configurações da Câmera")]
+    [Header("Configuraï¿½ï¿½es da Cï¿½mera")]
     public CinemachineCamera cameraDaCutscene;
     public float velocidadeDaCamera = 0.5f;
 
-    [Header("Referências da Personagem (Preenchidas Automaticamente)")]
+    [Header("Referï¿½ncias da Personagem (Preenchidas Automaticamente)")]
     public SpriteRenderer renderizadorPlayer;
     public Movement scriptMovimento;
 
-    [Header("Configuração dos Sprites")]
+    [Header("Configuraï¿½ï¿½o dos Sprites")]
     public Sprite spriteCostas;
     public Sprite spriteOriginalLuz;
 
     [Range(0f, 1f)]
-    [Tooltip("Em qual ponto do trilho (0 a 1) a personagem deve virar de costas? Ex: 0.5 é metade do caminho.")]
+    [Tooltip("Em qual ponto do trilho (0 a 1) a personagem deve virar de costas? Ex: 0.5 ï¿½ metade do caminho.")]
     public float pontoDaVirada = 0.5f;
 
     private bool jaMostrou = false;
     private CinemachineSplineDolly splineDolly;
     private bool mudouParaCostas = false;
 
-    // Variável para lembrar a rotação original do jogador
+    // Variï¿½vel para lembrar a rotaï¿½ï¿½o original do jogador
     private Quaternion rotacaoOriginal;
 
     void Start()
@@ -37,9 +37,19 @@ public class AtivarCutscene : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        // Tecla T = resetar cutscene pra testar de novo sem reload
+        if (Keyboard.current != null && Keyboard.current.tKey.wasPressedThisFrame)
+        {
+            jaMostrou = false;
+            Debug.Log("Cutscene resetada! Passe pelo trigger de novo.");
+        }
+    }
+
     void OnTriggerEnter(Collider outro)
     {
-        // Se quem encostou no cubo tem a tag "Player" e a cutscene ainda não rodou
+        // Se quem encostou no cubo tem a tag "Player" e a cutscene ainda nï¿½o rodou
         if (outro.CompareTag("Player") && !jaMostrou)
         {
             jaMostrou = true;
@@ -61,30 +71,30 @@ public class AtivarCutscene : MonoBehaviour
     {
         if (splineDolly == null) yield break;
 
-        // Guarda a rotação que o jogador estava antes da cutscene começar
+        // Guarda a rotaï¿½ï¿½o que o jogador estava antes da cutscene comeï¿½ar
         if (renderizadorPlayer != null)
         {
             rotacaoOriginal = renderizadorPlayer.transform.rotation;
         }
 
-        // 1. Trava o movimento e as animações padrão da personagem antes da cena começar
+        // 1. Trava o movimento e as animaï¿½ï¿½es padrï¿½o da personagem antes da cena comeï¿½ar
         if (scriptMovimento != null)
         {
             scriptMovimento.isAttacking = true;
             scriptMovimento.enabled = false; // Desliga o script de movimento para evitar o bug do Dash
         }
 
-        // Zera a posição e liga a câmera cinematográfica
+        // Zera a posiï¿½ï¿½o e liga a cï¿½mera cinematogrï¿½fica
         splineDolly.CameraPosition = 0;
         mudouParaCostas = false;
         cameraDaCutscene.gameObject.SetActive(true);
 
-        // 2. Faz a câmera andar suavemente pelo trilho até o final (posição 1.0)
+        // 2. Faz a cï¿½mera andar suavemente pelo trilho atï¿½ o final (posiï¿½ï¿½o 1.0)
         while (splineDolly.CameraPosition < 1f)
         {
             splineDolly.CameraPosition += velocidadeDaCamera * Time.deltaTime;
 
-            // CHECAGEM DA VIRADA: Se a câmera passou do ponto estipulado, troca o sprite
+            // CHECAGEM DA VIRADA: Se a cï¿½mera passou do ponto estipulado, troca o sprite
             if (!mudouParaCostas && splineDolly.CameraPosition >= pontoDaVirada)
             {
                 mudouParaCostas = true;
@@ -94,24 +104,24 @@ public class AtivarCutscene : MonoBehaviour
                 }
             }
 
-            // ROTAÇÃO (Anti-Invisibilidade):
-            // Força o plano do sprite a acompanhar o ângulo Y da câmera
+            // ROTAï¿½ï¿½O (Anti-Invisibilidade):
+            // Forï¿½a o plano do sprite a acompanhar o ï¿½ngulo Y da cï¿½mera
             if (mudouParaCostas && renderizadorPlayer != null && cameraDaCutscene != null)
             {
                 float anguloYDaCamera = cameraDaCutscene.transform.eulerAngles.y;
 
-                // Aplica a rotação apenas no eixo Y para o personagem não inclinar para frente ou para os lados
+                // Aplica a rotaï¿½ï¿½o apenas no eixo Y para o personagem nï¿½o inclinar para frente ou para os lados
                 renderizadorPlayer.transform.rotation = Quaternion.Euler(0, anguloYDaCamera, 0);
             }
 
             yield return null;
         }
 
-        // 3. A câmera para e fica aguardando o input do jogador
+        // 3. A cï¿½mera para e fica aguardando o input do jogador
         bool apertouBotao = false;
         while (!apertouBotao)
         {
-            // Mantém o sprite alinhado mesmo enquanto espera o input
+            // Mantï¿½m o sprite alinhado mesmo enquanto espera o input
             if (mudouParaCostas && renderizadorPlayer != null && cameraDaCutscene != null)
             {
                 float anguloYDaCamera = cameraDaCutscene.transform.eulerAngles.y;
@@ -130,13 +140,13 @@ public class AtivarCutscene : MonoBehaviour
             yield return null;
         }
 
-        // 4. O jogador apertou o botão! Restaura os sprites, devolve a rotação original e o controle
+        // 4. O jogador apertou o botï¿½o! Restaura os sprites, devolve a rotaï¿½ï¿½o original e o controle
         if (renderizadorPlayer != null)
         {
             if (spriteOriginalLuz != null)
                 renderizadorPlayer.sprite = spriteOriginalLuz;
 
-            // Devolve a rotação que ele tinha antes da cutscene começar
+            // Devolve a rotaï¿½ï¿½o que ele tinha antes da cutscene comeï¿½ar
             renderizadorPlayer.transform.rotation = rotacaoOriginal;
         }
 

@@ -1,5 +1,67 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &301921328440536574
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4601364192159885077}
+  m_Layer: 0
+  m_Name: HandMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4601364192159885077
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 301921328440536574}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.1, y: 1.66, z: -0.5}
+  m_LocalScale: {x: 0.71428573, y: 0.71428573, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5941343827046337718}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &777772379801624417
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3112967531414388166}
+  m_Layer: 0
+  m_Name: SwordMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3112967531414388166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777772379801624417}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.8, y: 1.66, z: -0.5}
+  m_LocalScale: {x: 0.71428573, y: 0.71428573, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5941343827046337718}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &938202237474368441
 GameObject:
   m_ObjectHideFlags: 0
@@ -28,8 +90,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 938202237474368441}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.013047588, y: 0.040727984, z: -0.00053188857, w: 0.99908495}
-  m_LocalPosition: {x: 85.71429, y: 0.11233075, z: -6}
+  m_LocalRotation: {x: 0.06622726, y: -0, z: -0, w: 0.9978046}
+  m_LocalPosition: {x: 120.52133, y: 1.0118649, z: -15}
   m_LocalScale: {x: 1, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -170,6 +232,37 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
+--- !u!1 &4010180560477873855
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4118461541391005595}
+  m_Layer: 0
+  m_Name: ChestMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4118461541391005595
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4010180560477873855}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7302013, y: -0.05638012, z: -0.68039894, w: -0.02616496}
+  m_LocalPosition: {x: -0.4, y: 1.4, z: -0.5}
+  m_LocalScale: {x: 0.71428573, y: 0.71428573, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5941343827046337718}
+  m_LocalEulerAnglesHint: {x: -6.6, y: -94.2, z: -897.304}
 --- !u!1 &4899358785894642214
 GameObject:
   m_ObjectHideFlags: 0
@@ -241,6 +334,9 @@ Transform:
   - {fileID: 1458721713336586082}
   - {fileID: 7149887862337375399}
   - {fileID: 9014771240153225783}
+  - {fileID: 4118461541391005595}
+  - {fileID: 4601364192159885077}
+  - {fileID: 3112967531414388166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &7185144098754476217
@@ -423,7 +519,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 5eee2ce087214fb4c810abbd3b60ab33, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c6456245dc9e5a64991f6f32313afdd6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -450,18 +546,19 @@ MonoBehaviour:
   spriteAtaque2: {fileID: 21300000, guid: c6456245dc9e5a64991f6f32313afdd6, type: 3}
   scriptMovimento: {fileID: 4998434101256093111}
   tempoEntreFrames: 0.1
+  previewAttackPose: 1
   currentMode: 0
   lightAttackSource: {fileID: 0}
   shadowAttackSource: {fileID: 0}
   lightColor: {r: 1, g: 0.95, b: 0.8, a: 1}
-  lightTargetIntensity: 15
+  lightTargetIntensity: 12
   lightRange: 8
   lightAttackDuration: 0.5
-  chestOffset: {x: 0, y: 0.5, z: 0}
-  handOffset: {x: 0.5, y: 0.2, z: 0}
-  swordOffset: {x: 1.2, y: 0.4, z: 0}
+  chestMarker: {fileID: 4118461541391005595}
+  handMarker: {fileID: 4601364192159885077}
+  swordMarker: {fileID: 3112967531414388166}
   shadowColor: {r: 0.2, g: 0, b: 0.5, a: 1}
-  shadowTargetIntensity: 12
+  shadowTargetIntensity: 25
   shadowRange: 8
   shadowAttackDuration: 0.5
   useLegacyInput: 0
@@ -507,11 +604,12 @@ MonoBehaviour:
   sombraAtaque2: {fileID: 21300000, guid: a0d96f528a37c7d498c259cbae2d1c19, type: 3}
   lightModeTint: {r: 1, g: 0.97, b: 0.85, a: 1}
   shadowModeTint: {r: 0.75, g: 0.55, b: 1, a: 1}
-  lightAuraColor: {r: 1, g: 0.92, b: 0.6, a: 1}
-  shadowAuraColor: {r: 0.4, g: 0.1, b: 0.8, a: 1}
-  lightAuraIntensity: 3
-  shadowAuraIntensity: 2
-  auraRange: 4
+  burstDuration: 0.4
+  flashScale: 0.065
+  flashYOffset: 1.5
+  auraScale: 0.04
+  auraAlpha: 0.2
+  auraSortingOrder: -1
   transitionDuration: 0.3
 --- !u!1001 &8831664230223642076
 PrefabInstance:

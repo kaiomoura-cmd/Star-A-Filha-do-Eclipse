@@ -3,9 +3,9 @@ using Unity.Cinemachine; // Biblioteca do Cinemachine novo
 
 public class GerenciadorDeFase : MonoBehaviour
 {
-    [Header("Referências da Fase")]
+    [Header("Referï¿½ncias da Fase")]
     public GameObject prefabDoPlayer; // Arraste o Prefab do seu PLAYER aqui
-    public CinemachineCamera cameraDoCinemachine; // Arraste a câmera da fase aqui
+    public CinemachineCamera cameraDoCinemachine; // Arraste a cï¿½mera da fase aqui
 
     void Start()
     {
@@ -23,7 +23,7 @@ public class GerenciadorDeFase : MonoBehaviour
             }
         }
 
-        // Se não achar o específico, tenta usar o primeiro que encontrar para o jogo não travar
+        // Se nï¿½o achar o especï¿½fico, tenta usar o primeiro que encontrar para o jogo nï¿½o travar
         if (spawnEscolhido == null && pontosDeSpawn.Length > 0)
         {
             spawnEscolhido = pontosDeSpawn[0].transform;
@@ -31,9 +31,9 @@ public class GerenciadorDeFase : MonoBehaviour
 
         if (spawnEscolhido != null)
         {
-            // 2. Instancia o Player na posição do spawn correto
+            // 2. Instancia o Player na posiï¿½ï¿½o do spawn correto
             GameObject playerInstanciado = Instantiate(prefabDoPlayer, spawnEscolhido.position, spawnEscolhido.rotation);
-            playerInstanciado.name = "PLAYER"; // Mantém o nome limpo
+            playerInstanciado.name = "PLAYER"; // Mantï¿½m o nome limpo
 
             // 3. Restaura o modo Luz ou Sombra que estava salvo
             PlayerAttack attackScript = playerInstanciado.GetComponent<PlayerAttack>();
@@ -44,19 +44,24 @@ public class GerenciadorDeFase : MonoBehaviour
                 // Converte de volta o inteiro para o formato do seu Enum
                 attackScript.currentMode = (PlayerAttack.PlayerMode)GameManager.Instance.modoAtualDoPlayer;
 
-                // Força o script visual a atualizar a skin/luz instantaneamente no início da fase
+                // Forï¿½a o script visual a atualizar a skin/luz instantaneamente no inï¿½cio da fase
                 if (visualScript != null)
                 {
-                    // Usa a função de inicialização imediata que ajustamos ontem
+                    // Usa a funï¿½ï¿½o de inicializaï¿½ï¿½o imediata que ajustamos ontem
                     System.Reflection.MethodInfo method = visualScript.GetType().GetMethod("ApplyModeInstant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (method != null) method.Invoke(visualScript, new object[] { attackScript.currentMode });
                 }
             }
 
-            // 4. Configura a câmera do Cinemachine para seguir e olhar o novo Player criado
+            // 4. Configura a cÃ¢mera do Cinemachine
             if (cameraDoCinemachine != null)
             {
-                cameraDoCinemachine.Follow = playerInstanciado.transform;
+                // Criar alvo separado pra cÃ¢mera (CameraLook pode mover ele)
+                GameObject camTarget = new GameObject("CameraTarget");
+                camTarget.transform.SetParent(playerInstanciado.transform);
+                camTarget.transform.localPosition = Vector3.zero;
+
+                cameraDoCinemachine.Follow = camTarget.transform;
                 cameraDoCinemachine.LookAt = playerInstanciado.transform;
             }
         }

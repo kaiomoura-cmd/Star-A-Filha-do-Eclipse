@@ -9,8 +9,8 @@ public class Movement : MonoBehaviour
 
     [Header("Movimento Horizontal")]
     public float speed = 5f;
-    public float groundAcceleration = 0.8f;
-    public float airAcceleration = 0.65f;
+    public float groundAcceleration = 0.85f;
+    public float airAcceleration = 0.60f;
 
     [Header("Pulo - Modo Luz (Fixo e Alto)")]
     public float lightJumpForce = 22f;
@@ -98,6 +98,12 @@ public class Movement : MonoBehaviour
     private InputAction jumpAction;
     private TrailRenderer trailRenderer;
 
+    // Look Up/Down (câmera)
+    [HideInInspector] public bool isLookingUp = false;
+    [HideInInspector] public bool isLookingDown = false;
+    private float lookHoldTime = 0f;
+    public float lookHoldThreshold = 0.4f; // Segundos segurando pra ativar o look
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -153,7 +159,46 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
+        // Fallback: garantir que W/S alimentem moveInput.y para dash de sombra
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.isPressed) moveInput.y = 1f;
+            else if (Keyboard.current.sKey.isPressed) moveInput.y = -1f;
+            else if (!Keyboard.current.wKey.isPressed && !Keyboard.current.sKey.isPressed && isGrounded)
+                moveInput.y = 0f;
+        }
+
         AtualizarSprite();
+
+        // Look Up / Look Down (segurar W ou S parado no chão)
+        if (isGrounded && Mathf.Abs(input) < 0.1f && !isDashing && !isAttacking)
+        {
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.wKey.isPressed)
+                {
+                    lookHoldTime += Time.deltaTime;
+                    if (lookHoldTime >= lookHoldThreshold) { isLookingUp = true; isLookingDown = false; }
+                }
+                else if (Keyboard.current.sKey.isPressed)
+                {
+                    lookHoldTime += Time.deltaTime;
+                    if (lookHoldTime >= lookHoldThreshold) { isLookingDown = true; isLookingUp = false; }
+                }
+                else
+                {
+                    lookHoldTime = 0f;
+                    isLookingUp = false;
+                    isLookingDown = false;
+                }
+            }
+        }
+        else
+        {
+            lookHoldTime = 0f;
+            isLookingUp = false;
+            isLookingDown = false;
+        }
 
         bool previouslyHeld = jumpHeld;
         jumpHeld = CheckJumpInputHeld();
@@ -178,7 +223,7 @@ public class Movement : MonoBehaviour
         // 2. Fallback direto para os dispositivos de hardware (teclado e gamepad)
         if (Keyboard.current != null)
         {
-            if (Keyboard.current.spaceKey.isPressed || Keyboard.current.wKey.isPressed)
+            if (Keyboard.current.spaceKey.isPressed)
             {
                 return true;
             }
@@ -203,6 +248,13 @@ public class Movement : MonoBehaviour
         StartCoroutine(AnimarDash());
 
         isDashing = true;
+
+        // Impede pulo duplo no ar após o dash: zera os timers de pulo
+        if (!isGrounded)
+        {
+            coyoteTimeCounter = 0f;
+            jumpBufferCounter = 0f;
+        }
 
         if (IsInShadowMode())
         {
@@ -244,6 +296,13 @@ public class Movement : MonoBehaviour
     private void StopDash()
     {
         isDashing = false;
+
+        // Limpar flags de pulo para evitar pulo duplo no ar
+        jumpPressedThisFrame = false;
+        jumpReleasedThisFrame = false;
+        jumpHeld = false;
+        jumpBufferCounter = 0f;
+        coyoteTimeCounter = 0f;
 
         if (isShadowDashing)
         {
@@ -724,6 +783,9 @@ public class Movement : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Ground"))
         {
+            // Durante o dash, ignorar colisão com o chão para evitar reabastecer coyote time
+            if (isDashing) return;
+
             foreach (ContactPoint contact in collision.contacts)
             {
                 if (contact.normal.y > sensibility)
@@ -745,6 +807,9 @@ public class Movement : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Ground"))
         {
+            // Durante o dash, ignorar colisão com o chão
+            if (isDashing) return;
+
             foreach (ContactPoint contact in collision.contacts)
             {
                 if (contact.normal.y > sensibility)

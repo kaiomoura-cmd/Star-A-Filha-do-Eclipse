@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Gerencia o feedback visual do jogador baseado no modo atual (Luz ou Sombra).
-/// Altera a cor do SpriteRenderer e cria/controla um Point Light para brilho sutil.
-/// Requer um componente PlayerAttack no mesmo GameObject.
-/// </summary>
 public class PlayerModeVisual : MonoBehaviour
 {
     [Header("Sprites de Luz")]
@@ -27,135 +22,118 @@ public class PlayerModeVisual : MonoBehaviour
     private Movement playerMovement;
 
     [Header("Cores do Sprite")]
-    [Tooltip("Tinta aplicada ao sprite no modo Luz")]
     public Color lightModeTint = new Color(1f, 0.97f, 0.85f, 1f);
-    [Tooltip("Tinta aplicada ao sprite no modo Sombra")]
     public Color shadowModeTint = new Color(0.75f, 0.55f, 1f, 1f);
 
-    [Header("Configurações da Luz de Aura")]
-    [Tooltip("Cor da aura no modo Luz")]
-    public Color lightAuraColor = new Color(1f, 0.92f, 0.6f, 1f);
-    [Tooltip("Cor da aura no modo Sombra")]
-    public Color shadowAuraColor = new Color(0.4f, 0.1f, 0.8f, 1f);
-    public float lightAuraIntensity = 3f;
-    public float shadowAuraIntensity = 2f;
-    public float auraRange = 4f;
+    [Header("💥 Flash da Troca de Modo")]
+    public float burstDuration = 0.4f;
+    public float flashScale = 0.065f;
+    public float flashYOffset = 1.5f;
+
+    [Header("✨ Aura Permanente")]
+    public float auraScale = 2f;
+    public float auraAlpha = 0.2f;
+    public int auraSortingOrder = 0;
 
     [Header("Transição")]
-    [Tooltip("Duração da transição suave entre modos (em segundos)")]
     public float transitionDuration = 0.3f;
 
-    // Referências internas
     private PlayerAttack playerAttack;
     private SpriteRenderer spriteRenderer;
-    private Light auraLight;
+    private SpriteRenderer auraRenderer;
 
-    // Estado de transição
     private PlayerAttack.PlayerMode lastMode;
     private float transitionProgress = 1f;
+    private Color tintFrom, tintTo;
 
-    // Cores/valores de origem e destino da transição
-    private Color tintFrom;
-    private Color tintTo;
-    private Color auraColorFrom;
-    private Color auraColorTo;
-    private float auraIntensityFrom;
-    private float auraIntensityTo;
-
-    void Start()
+    void Awake()
     {
         playerAttack = GetComponent<PlayerAttack>();
+        if (playerAttack == null) playerAttack = GetComponentInParent<PlayerAttack>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerMovement = GetComponent<Movement>();
 
-        if (playerAttack == null)
-        {
-            Debug.LogWarning("PlayerModeVisual: PlayerAttack não encontrado no GameObject!");
-            enabled = false;
-            return;
-        }
+        if (playerAttack == null) { enabled = false; return; }
 
-        // Criar ou encontrar a luz de aura
-        SetupAuraLight();
-
-        // Inicializar com o modo atual
         lastMode = playerAttack.currentMode;
         ApplyModeInstant(lastMode);
+    }
+
+    void Start()
+    {
+        // Copia do burst: cria aura igual ao flash, mas permanente e atrás
+        CriarAura(playerAttack.currentMode);
+    }
+
+    void CriarAura(PlayerAttack.PlayerMode modo)
+    {
+        // Destruir qualquer ModeAura antigo salvo no prefab
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            if (transform.GetChild(i).name == "ModeAura")
+                Destroy(transform.GetChild(i).gameObject);
+        }
+
+        GameObject auraGO = new GameObject("ModeAura");
+        auraGO.transform.SetParent(transform);
+        auraGO.transform.localPosition = new Vector3(0f, flashYOffset, 0f);
+
+        int texSize = 64;
+        Texture2D tex = new Texture2D(texSize, texSize);
+        Color[] pixels = new Color[texSize * texSize];
+        float half = texSize / 2f;
+        for (int y = 0; y < texSize; y++)
+            for (int x = 0; x < texSize; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(half, half)) / half;
+                pixels[y * texSize + x] = new Color(1f, 1f, 1f, 1f - Mathf.SmoothStep(0.3f, 1f, dist));
+            }
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        auraRenderer = auraGO.AddComponent<SpriteRenderer>();
+        auraRenderer.sprite = Sprite.Create(tex, new Rect(0, 0, texSize, texSize), new Vector2(0.5f, 0.5f), 1f);
+
+        // Mesma sorting layer do player, ordem atrás
+        if (spriteRenderer != null)
+            auraRenderer.sortingLayerName = spriteRenderer.sortingLayerName;
+        auraRenderer.sortingOrder = auraSortingOrder;
+
+        auraRenderer.color = (modo == PlayerAttack.PlayerMode.Luz)
+            ? new Color(1f, 0.95f, 0.3f, auraAlpha)
+            : new Color(0.5f, 0.1f, 1f, auraAlpha);
+
+        auraGO.transform.localScale = new Vector3(auraScale, auraScale, 1f);
+        Debug.Log("ModeAura criada com escala: " + auraScale);
     }
 
     void Update()
     {
         if (playerAttack == null) return;
 
-        // Detectar troca de modo
         if (playerAttack.currentMode != lastMode)
         {
             StartTransition(playerAttack.currentMode);
             lastMode = playerAttack.currentMode;
         }
 
-        // Atualizar transição suave
         if (transitionProgress < 1f)
         {
             transitionProgress += Time.deltaTime / transitionDuration;
-            transitionProgress = Mathf.Clamp01(transitionProgress);
-
-            float t = Mathf.SmoothStep(0f, 1f, transitionProgress);
-
-            // Interpolar cor do sprite
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(transitionProgress));
             if (spriteRenderer != null)
-            {
                 spriteRenderer.color = Color.Lerp(tintFrom, tintTo, t);
-            }
-
-            // Interpolar cor e intensidade da luz
-            if (auraLight != null)
-            {
-                auraLight.color = Color.Lerp(auraColorFrom, auraColorTo, t);
-                auraLight.intensity = Mathf.Lerp(auraIntensityFrom, auraIntensityTo, t);
-            }
         }
     }
 
-    private void SetupAuraLight()
-    {
-        // Procurar uma luz existente chamada "ModeAuraLight"
-        Transform existingLight = transform.Find("ModeAuraLight");
-        if (existingLight != null)
-        {
-            auraLight = existingLight.GetComponent<Light>();
-        }
-        else
-        {
-            // Criar a luz dinamicamente
-            GameObject lightObj = new GameObject("ModeAuraLight");
-            lightObj.transform.SetParent(transform);
-            lightObj.transform.localPosition = new Vector3(0f, 0.5f, 0f);
-
-            auraLight = lightObj.AddComponent<Light>();
-            auraLight.type = LightType.Point;
-            auraLight.range = auraRange;
-            auraLight.shadows = LightShadows.None;
-        }
-    }
-
-    private void StartTransition(PlayerAttack.PlayerMode newMode)
+    void StartTransition(PlayerAttack.PlayerMode newMode)
     {
         transitionProgress = 0f;
-
-        // Capturar valores atuais como origem
         tintFrom = spriteRenderer != null ? spriteRenderer.color : Color.white;
-        auraColorFrom = auraLight != null ? auraLight.color : Color.white;
-        auraIntensityFrom = auraLight != null ? auraLight.intensity : 0f;
 
-        // Definir destino
         if (newMode == PlayerAttack.PlayerMode.Luz)
         {
             tintTo = lightModeTint;
-            auraColorTo = lightAuraColor;
-            auraIntensityTo = lightAuraIntensity;
-
-            // INJETA OS SPRITES DE LUZ DURANTE A TRANSIÇÃO
             if (playerMovement != null)
             {
                 playerMovement.spriteParado = luzParado;
@@ -173,10 +151,6 @@ public class PlayerModeVisual : MonoBehaviour
         else
         {
             tintTo = shadowModeTint;
-            auraColorTo = shadowAuraColor;
-            auraIntensityTo = shadowAuraIntensity;
-
-            // INJETA OS SPRITES DE SOMBRA DURANTE A TRANSIÇÃO
             if (playerMovement != null)
             {
                 playerMovement.spriteParado = sombraParado;
@@ -190,20 +164,61 @@ public class PlayerModeVisual : MonoBehaviour
                 playerAttack.spriteAtaque2 = sombraAtaque2;
             }
         }
+
+        // Recriar aura com valores atualizados
+        CriarAura(newMode);
+
+        StartCoroutine(BurstFlash(newMode));
     }
 
-    private void ApplyModeInstant(PlayerAttack.PlayerMode mode)
+    System.Collections.IEnumerator BurstFlash(PlayerAttack.PlayerMode modo)
     {
+        yield return null;
+
+        GameObject flashGO = new GameObject("ModeFlash");
+        flashGO.transform.SetParent(transform);
+        flashGO.transform.position = transform.position + new Vector3(0f, flashYOffset, 0f);
+
+        int texSize = 64;
+        Texture2D tex = new Texture2D(texSize, texSize);
+        Color[] pixels = new Color[texSize * texSize];
+        float half = texSize / 2f;
+        for (int y = 0; y < texSize; y++)
+            for (int x = 0; x < texSize; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(half, half)) / half;
+                pixels[y * texSize + x] = new Color(1f, 1f, 1f, 1f - Mathf.SmoothStep(0f, 1f, dist));
+            }
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        SpriteRenderer fr = flashGO.AddComponent<SpriteRenderer>();
+        fr.sprite = Sprite.Create(tex, new Rect(0, 0, texSize, texSize), new Vector2(0.5f, 0.5f), 1f);
+        fr.sortingOrder = 999;
+        fr.color = (modo == PlayerAttack.PlayerMode.Luz)
+            ? new Color(1f, 0.95f, 0.3f, 1f)
+            : new Color(0.5f, 0.1f, 1f, 1f);
+        flashGO.transform.localScale = new Vector3(flashScale, flashScale, 1f);
+
+        float elapsed = 0f;
+        while (elapsed < burstDuration)
+        {
+            elapsed += Time.deltaTime;
+            Color c = fr.color;
+            c.a = Mathf.Lerp(1f, 0f, Mathf.Clamp01(elapsed / burstDuration));
+            fr.color = c;
+            yield return null;
+        }
+        Destroy(flashGO);
+    }
+
+    void ApplyModeInstant(PlayerAttack.PlayerMode mode)
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.color = (mode == PlayerAttack.PlayerMode.Luz) ? lightModeTint : shadowModeTint;
+
         if (mode == PlayerAttack.PlayerMode.Luz)
         {
-            if (spriteRenderer != null) spriteRenderer.color = lightModeTint;
-            if (auraLight != null)
-            {
-                auraLight.color = lightAuraColor;
-                auraLight.intensity = lightAuraIntensity;
-            }
-
-            // TROCA PARA OS SPRITES DE LUZ
             if (playerMovement != null)
             {
                 playerMovement.spriteParado = luzParado;
@@ -220,14 +235,6 @@ public class PlayerModeVisual : MonoBehaviour
         }
         else
         {
-            if (spriteRenderer != null) spriteRenderer.color = shadowModeTint;
-            if (auraLight != null)
-            {
-                auraLight.color = shadowAuraColor;
-                auraLight.intensity = shadowAuraIntensity;
-            }
-
-            // TROCA PARA OS SPRITES DE SOMBRA
             if (playerMovement != null)
             {
                 playerMovement.spriteParado = sombraParado;

@@ -132,7 +132,12 @@ public class PlayerAttack : MonoBehaviour
             if (flying != null)
             {
                 flying.TakeDamage(dmgType);
-                Debug.Log($"Acertou inimigo voador com dano {dmgType}!");
+                continue;
+            }
+            Brokk brokk = col.GetComponent<Brokk>();
+            if (brokk != null)
+            {
+                brokk.TakeDamage(dmgType);
             }
         }
     }

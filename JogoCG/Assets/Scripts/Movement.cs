@@ -56,9 +56,10 @@ public class Movement : MonoBehaviour
     public float lightDashSpeed = 22f;
     public float lightDashDuration = 0.35f;
     public float lightDashCooldown = 1.0f;
-    public float shadowDashSpeed = 16f;
-    public float shadowDashDuration = 0.25f;
+    public float shadowDashSpeed = 30f;
+    public float shadowDashDuration = 0.4f;
     public float shadowDashCooldown = 0.8f;
+    public float shadowDashIntangibleExtra = 0.25f;
     public float lightDashRepelForce = 22f; // Aumentado para repulsão mais forte
     public float lightDashRepelUpwardForce = 8f; // Aumentado para empurrar mais para cima
     public Vector3 trailOffset = new Vector3(0f, 1f, 0f); // Deslocamento para centralizar no corpo
@@ -294,6 +295,10 @@ public class Movement : MonoBehaviour
 
             // Direção do dash de Luz: apenas para frente
             dashDirection = new Vector3(Mathf.Sign(transform.localScale.x), 0f, 0f);
+
+            // Invulnerável durante o dash de Luz
+            PlayerHealth ph = GetComponent<PlayerHealth>();
+            if (ph != null) ph.SetInvincible(true);
         }
 
         // Zera velocidade antes de aplicar o impulso do dash
@@ -317,7 +322,14 @@ public class Movement : MonoBehaviour
         if (isShadowDashing)
         {
             isShadowDashing = false;
-            SetIntangible(false);
+            // Atraso na restauração da colisão (invulnerabilidade extra)
+            StartCoroutine(DelayedSetIntangible(false, shadowDashIntangibleExtra));
+        }
+        else
+        {
+            // Luz: restaurar vulnerabilidade imediatamente
+            PlayerHealth ph = GetComponent<PlayerHealth>();
+            if (ph != null) ph.SetInvincible(false);
         }
 
         // Restaura velocidade de forma suave
@@ -385,20 +397,35 @@ public class Movement : MonoBehaviour
         }
     }
 
+    private IEnumerator DelayedSetIntangible(bool intangible, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SetIntangible(intangible);
+    }
+
     private void SetIntangible(bool intangible)
     {
         Collider playerCollider = GetComponent<Collider>();
         if (playerCollider == null) return;
 
-        // Procura todos os GameObjects com a tag "Enemy" e ignora/reabilita as colisões
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in enemies)
+        // Todos os tipos de inimigos
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        foreach (Enemy e in enemies)
         {
-            Collider[] enemyColliders = enemy.GetComponentsInChildren<Collider>();
-            foreach (Collider enemyCollider in enemyColliders)
-            {
-                Physics.IgnoreCollision(playerCollider, enemyCollider, intangible);
-            }
+            Collider ec = e.GetComponent<Collider>();
+            if (ec != null) Physics.IgnoreCollision(playerCollider, ec, intangible);
+        }
+        FlyingEnemy[] flyers = FindObjectsOfType<FlyingEnemy>();
+        foreach (FlyingEnemy f in flyers)
+        {
+            Collider fc = f.GetComponent<Collider>();
+            if (fc != null) Physics.IgnoreCollision(playerCollider, fc, intangible);
+        }
+        Brokk[] brokks = FindObjectsOfType<Brokk>();
+        foreach (Brokk b in brokks)
+        {
+            Collider bc = b.GetComponent<Collider>();
+            if (bc != null) Physics.IgnoreCollision(playerCollider, bc, intangible);
         }
     }
 
@@ -814,30 +841,44 @@ public class Movement : MonoBehaviour
     // ==========================================
     void OnCollisionEnter(Collision collision)
     {
-        // Colisão com Inimigos durante o Dash de Luz
-        if (isDashing && !isShadowDashing && collision.gameObject.CompareTag("Enemy"))
+        // Colisão com Inimigos durante o Dash de Luz (dano + repulsão)
+        if (isDashing && !isShadowDashing)
         {
-            // Causar dano no inimigo via SendMessage (compatível com qualquer script de vida do inimigo)
-            collision.gameObject.SendMessage("TakeDamage", 10f, SendMessageOptions.DontRequireReceiver);
-            Debug.Log("Dash de Luz causou dano no inimigo!");
+            Enemy enemy = collision.gameObject.GetComponent<Enemy>();
+            FlyingEnemy flying = collision.gameObject.GetComponent<FlyingEnemy>();
+            Brokk brokk = collision.gameObject.GetComponent<Brokk>();
 
-            // Player é repelido (knockback)
-            isDashing = false;
-            EnableDashTrail(false); // Desativa emissão do rastro imediatamente!
+            if (enemy != null || flying != null || brokk != null)
+            {
+                // Aplica dano de Luz
+                PlayerHealth.DamageType dmg = PlayerHealth.DamageType.Light;
+                if (enemy != null) enemy.TakeDamage(dmg);
+                if (flying != null) flying.TakeDamage(dmg);
+                if (brokk != null) brokk.TakeDamage(dmg);
+                Debug.Log("Dash de Luz causou dano no inimigo!");
 
-            Vector3 repelDir = -dashDirection;
-            repelDir.y = 1f; // Empurra levemente para cima
-            repelDir = repelDir.normalized;
+                // Player é repelido (knockback)
+                isDashing = false;
+                EnableDashTrail(false);
 
-            rb.linearVelocity = new Vector3(repelDir.x * lightDashRepelForce, repelDir.y * lightDashRepelUpwardForce, 0f);
-            return;
+                Vector3 repelDir = -dashDirection;
+                repelDir.y = 1f;
+                repelDir = repelDir.normalized;
+                rb.linearVelocity = new Vector3(repelDir.x * lightDashRepelForce, repelDir.y * lightDashRepelUpwardForce, 0f);
+                return;
+            }
         }
 
-        // Colisão com Inimigos durante o Dash de Sombra (intangibilidade de emergência caso passem pelo ignore inicial)
-        if (isShadowDashing && collision.gameObject.CompareTag("Enemy"))
+        // Colisão com Inimigos durante o Dash de Sombra (intangibilidade)
+        if (isShadowDashing)
         {
-            Physics.IgnoreCollision(GetComponent<Collider>(), collision.collider, true);
-            return;
+            if (collision.gameObject.GetComponent<Enemy>() != null ||
+                collision.gameObject.GetComponent<FlyingEnemy>() != null ||
+                collision.gameObject.GetComponent<Brokk>() != null)
+            {
+                Physics.IgnoreCollision(GetComponent<Collider>(), collision.collider, true);
+                return;
+            }
         }
 
         if (collision.gameObject.CompareTag("Ground"))
@@ -858,10 +899,16 @@ public class Movement : MonoBehaviour
 
     void OnCollisionStay(Collision collision)
     {
-        if (isShadowDashing && collision.gameObject.CompareTag("Enemy"))
+        // Shadow dash: manter intangibilidade
+        if (isShadowDashing)
         {
-            Physics.IgnoreCollision(GetComponent<Collider>(), collision.collider, true);
-            return;
+            if (collision.gameObject.GetComponent<Enemy>() != null ||
+                collision.gameObject.GetComponent<FlyingEnemy>() != null ||
+                collision.gameObject.GetComponent<Brokk>() != null)
+            {
+                Physics.IgnoreCollision(GetComponent<Collider>(), collision.collider, true);
+                return;
+            }
         }
 
         if (collision.gameObject.CompareTag("Ground"))

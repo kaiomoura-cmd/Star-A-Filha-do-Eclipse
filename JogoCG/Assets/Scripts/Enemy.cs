@@ -37,9 +37,12 @@ public class Enemy : MonoBehaviour
     public Color lightExplosionColor = new Color(1f, 0.95f, 0.3f, 1f);
     public Color shadowExplosionColor = new Color(0.5f, 0.1f, 1f, 1f);
 
-    [Header("Repulsão ao tomar dano")]
+    [Header("Knockback")]
     public float knockbackForce = 4f;
     public float knockbackDuration = 0.15f;
+
+    [Header("Feedback Visual")]
+    public float flashDuration = 0.15f;
 
     [Header("Invencibilidade")]
     public float invincibilityTime = 0.3f;
@@ -114,6 +117,7 @@ public class Enemy : MonoBehaviour
 
         // Repulsão (knockback)
         StartCoroutine(KnockbackRoutine());
+        StartCoroutine(FlashRed());
 
         // Invencibilidade temporária
         StartCoroutine(InvincibilityCooldown());
@@ -191,6 +195,15 @@ public class Enemy : MonoBehaviour
         isInvincible = true;
         yield return new WaitForSeconds(invincibilityTime);
         isInvincible = false;
+    }
+
+    IEnumerator FlashRed()
+    {
+        if (spriteRenderer == null) yield break;
+        Color original = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(flashDuration);
+        spriteRenderer.color = original;
     }
 
     IEnumerator KnockbackRoutine()

@@ -26,6 +26,8 @@ public class PlayerHealth : MonoBehaviour
     public int LightStars => lightStars;
     public int ShadowStars => shadowStars;
 
+    public void SetInvincible(bool inv) { isInvincible = inv; }
+
     private void Start()
     {
         // Carregar vida salva do GameManager (persiste entre cenas)

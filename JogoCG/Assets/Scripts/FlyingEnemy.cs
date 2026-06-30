@@ -37,6 +37,9 @@ public class FlyingEnemy : MonoBehaviour
     public float knockbackForce = 4f;
     public float knockbackDuration = 0.15f;
 
+    [Header("Feedback Visual")]
+    public float flashDuration = 0.15f;
+
     [Header("Invencibilidade")]
     public float invincibilityTime = 0.3f;
 
@@ -120,11 +123,12 @@ public class FlyingEnemy : MonoBehaviour
         {
             // PERSEGUIR: mover suavemente na direção do player
             Vector3 target = player.position + new Vector3(0f, floatHeight, 0f);
-            transform.position = Vector3.MoveTowards(
+            Vector3 pos = Vector3.MoveTowards(
                 transform.position,
                 target,
                 chaseSpeed * Time.fixedDeltaTime
             );
+            rb.MovePosition(pos);
         }
         else
         {
@@ -132,12 +136,12 @@ public class FlyingEnemy : MonoBehaviour
             float fx = Mathf.Sin(floatTimer * 0.7f) * floatAmplitudeX;
             float fy = Mathf.Sin(floatTimer * 1.3f) * floatAmplitudeY;
             Vector3 floatPos = homePosition + new Vector3(fx, floatHeight + fy, 0f);
-
-            transform.position = Vector3.Lerp(
+            Vector3 lerped = Vector3.Lerp(
                 transform.position,
                 floatPos,
                 2f * Time.fixedDeltaTime
             );
+            rb.MovePosition(lerped);
         }
 
         FlipSprite();
@@ -173,7 +177,7 @@ public class FlyingEnemy : MonoBehaviour
         {
             if (isDead || isDisabled) { isDiving = false; yield break; }
             t += Time.deltaTime / duration;
-            transform.position = Vector3.Lerp(startPos, targetPos, Mathf.Clamp01(t));
+            rb.MovePosition(Vector3.Lerp(startPos, targetPos, Mathf.Clamp01(t)));
             FlipSprite();
 
             if (t > 0.2f && Vector3.Distance(transform.position, player.position) < damageRadius)
@@ -200,7 +204,8 @@ public class FlyingEnemy : MonoBehaviour
         while (Vector3.Distance(transform.position, retreatPos) > 0.2f)
         {
             if (isDead || isDisabled) { isDiving = false; yield break; }
-            transform.position = Vector3.MoveTowards(transform.position, retreatPos, retreatSpeed * Time.deltaTime);
+            Vector3 pos = Vector3.MoveTowards(transform.position, retreatPos, retreatSpeed * Time.deltaTime);
+            rb.MovePosition(pos);
             FlipSprite();
             yield return null;
         }
@@ -227,6 +232,7 @@ public class FlyingEnemy : MonoBehaviour
 
         StartCoroutine(InvincibilityCooldown());
         StartCoroutine(KnockbackRoutine());
+        StartCoroutine(FlashRed());
 
         if (lightStars >= maxStars)
             StartCoroutine(DeathExplosion());
@@ -277,6 +283,15 @@ public class FlyingEnemy : MonoBehaviour
     }
 
     IEnumerator InvincibilityCooldown() { isInvincible = true; yield return new WaitForSeconds(invincibilityTime); isInvincible = false; }
+
+    IEnumerator FlashRed()
+    {
+        if (spriteRenderer == null) yield break;
+        Color original = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(flashDuration);
+        spriteRenderer.color = original;
+    }
 
     IEnumerator KnockbackRoutine()
     {

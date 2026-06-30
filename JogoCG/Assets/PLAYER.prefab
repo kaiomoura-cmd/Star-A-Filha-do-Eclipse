@@ -437,8 +437,9 @@ MonoBehaviour:
   lightDashDuration: 0.35
   lightDashCooldown: 1
   shadowDashSpeed: 16
-  shadowDashDuration: 0.25
+  shadowDashDuration: 0.35
   shadowDashCooldown: 0.8
+  shadowDashIntangibleExtra: 0.15
   lightDashRepelForce: 22
   lightDashRepelUpwardForce: 8
   trailOffset: {x: 0, y: 1, z: 0}
@@ -526,7 +527,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: c6456245dc9e5a64991f6f32313afdd6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -557,6 +558,10 @@ MonoBehaviour:
   spriteAtaqueAereo2: {fileID: 0}
   scriptMovimento: {fileID: 4998434101256093111}
   tempoEntreFrames: 0.1
+  attackRadius: 1.5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
   previewAttackPose: 1
   currentMode: 0
   lightAttackSource: {fileID: 0}
@@ -633,6 +638,10 @@ MonoBehaviour:
   totalStars: 6
   lightStars: 5
   shadowStars: 1
+  invincibilityDuration: 1.5
+  blinkSpeed: 0.1
+  knockbackForce: 8
+  knockbackDuration: 0.15
   enableDebugKeys: 1
 --- !u!1001 &8831664230223642076
 PrefabInstance:

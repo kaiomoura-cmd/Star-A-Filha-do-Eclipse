@@ -3,29 +3,37 @@ using UnityEngine.SceneManagement;
 
 public class PortaTransicao : MonoBehaviour
 {
-    [Header("Configurações da Transição")]
+    [Header("Configuraï¿½ï¿½es da Transiï¿½ï¿½o")]
     [Tooltip("Nome exato do arquivo da cena para onde o jogador vai")]
     public string nomeDaProximaCena;
 
-    [Tooltip("A tag/ID do ponto de spawn onde o jogador vai nascer na PRÓXIMA cena")]
+    [Tooltip("A tag/ID do ponto de spawn onde o jogador vai nascer na PRï¿½XIMA cena")]
     public string tagDoSpawnDestino;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            // 1. Salva o estado atual do player no GameManager antes de mudar
+            // 1. Salva o modo atual
             PlayerAttack attackScript = other.GetComponent<PlayerAttack>();
             if (attackScript != null)
             {
-                // Converte o modo atual para inteiro para salvar de forma simples
                 GameManager.Instance.modoAtualDoPlayer = (int)attackScript.currentMode;
             }
 
-            // 2. Avisa o GameManager qual é o spawn correto da próxima fase
+            // 2. Salva a vida atual do player
+            PlayerHealth healthScript = other.GetComponent<PlayerHealth>();
+            if (healthScript != null)
+            {
+                GameManager.Instance.lightStarsSaved = healthScript.LightStars;
+                GameManager.Instance.shadowStarsSaved = healthScript.ShadowStars;
+                GameManager.Instance.healthEverSaved = true;
+            }
+
+            // 3. Spawn da prÃ³xima fase
             GameManager.Instance.tagSpawnAlvo = tagDoSpawnDestino;
 
-            // 3. Carrega a nova cena
+            // 4. Carrega a nova cena
             SceneManager.LoadScene(nomeDaProximaCena);
         }
     }

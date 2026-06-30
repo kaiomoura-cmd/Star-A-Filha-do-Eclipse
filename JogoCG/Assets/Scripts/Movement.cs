@@ -33,8 +33,14 @@ public class Movement : MonoBehaviour
     public Sprite spriteParado;
     public Sprite spriteAndando;
     public Sprite spritePulando;
+    public Sprite spritePulando2;
+    public float tempoAnimacaoPulo = 0.2f;
     public Sprite spriteDash1;
     public Sprite spriteDash2;
+    public Sprite spriteOlhandoCima;
+    public Sprite spriteOlhandoBaixo;
+    public Sprite spriteAndandoTransicao;
+    public float tempoAnimacaoAndar = 0.15f;
     public float tempoEntreFramesDash = 0.1f;
 
     [Header("Configurações do Wall Jump")]
@@ -102,6 +108,10 @@ public class Movement : MonoBehaviour
     [HideInInspector] public bool isLookingUp = false;
     [HideInInspector] public bool isLookingDown = false;
     private float lookHoldTime = 0f;
+    private float walkAnimTimer = 0f;
+    private int walkFrame = 0;
+    private float jumpAnimTimer = 0f;
+    private int jumpFrame = 0;
     public float lookHoldThreshold = 0.4f; // Segundos segurando pra ativar o look
 
     void Start()
@@ -605,19 +615,68 @@ public class Movement : MonoBehaviour
 
         if (renderizadorSprite == null) return;
 
+        // Olhando pra cima/baixo tem prioridade sobre parado/andando
+        if (isGrounded && Mathf.Abs(input) < 0.1f)
+        {
+            if (isLookingUp && spriteOlhandoCima != null)
+            {
+                renderizadorSprite.sprite = spriteOlhandoCima;
+                return;
+            }
+            if (isLookingDown && spriteOlhandoBaixo != null)
+            {
+                renderizadorSprite.sprite = spriteOlhandoBaixo;
+                return;
+            }
+        }
+
         if (!isGrounded && !isWallSliding && spritePulando != null)
         {
-            renderizadorSprite.sprite = spritePulando;
+            // Animação de pulo: transição única (sprite1 → sprite2)
+            if (jumpFrame < 1 && spritePulando2 != null)
+            {
+                jumpAnimTimer += Time.deltaTime;
+                if (jumpAnimTimer >= tempoAnimacaoPulo)
+                {
+                    jumpFrame = 1;
+                    jumpAnimTimer = 0f;
+                }
+            }
+            renderizadorSprite.sprite = (jumpFrame == 1 && spritePulando2 != null)
+                ? spritePulando2 : spritePulando;
+
+            walkAnimTimer = 0f;
+            walkFrame = 0;
         }
         else
         {
-            if (Mathf.Abs(input) > 0.1f && spriteAndando != null)
+            // Resetar animação de pulo ao tocar o chão e tratar andar/parado
+            jumpFrame = 0;
+            jumpAnimTimer = 0f;
+
+            if (Mathf.Abs(input) > 0.1f)
             {
-                renderizadorSprite.sprite = spriteAndando;
+                // Animação de 3 frames: parado → transição → andando
+                walkAnimTimer += Time.deltaTime;
+                if (walkAnimTimer >= tempoAnimacaoAndar)
+                {
+                    walkAnimTimer = 0f;
+                    walkFrame = (walkFrame + 1) % 3;
+                }
+
+                if (walkFrame == 0 && spriteParado != null)
+                    renderizadorSprite.sprite = spriteParado;
+                else if (walkFrame == 1 && spriteAndandoTransicao != null)
+                    renderizadorSprite.sprite = spriteAndandoTransicao;
+                else if (walkFrame == 2 && spriteAndando != null)
+                    renderizadorSprite.sprite = spriteAndando;
             }
-            else if (spriteParado != null)
+            else
             {
-                renderizadorSprite.sprite = spriteParado;
+                walkAnimTimer = 0f;
+                walkFrame = 0;
+                if (spriteParado != null)
+                    renderizadorSprite.sprite = spriteParado;
             }
         }
     }

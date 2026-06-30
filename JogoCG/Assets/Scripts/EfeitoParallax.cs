@@ -19,13 +19,13 @@ public class EfeitoParallax : MonoBehaviour
         ultimaPosicaoCamera = cameraDoJogo.position;
     }
 
-    void LateUpdate() // LateUpdate é usado para rodar depois que a câmera já se moveu
+    void LateUpdate()
     {
         // Calcula o quanto a câmera andou desde o último frame
         Vector3 movimentoCamera = cameraDoJogo.position - ultimaPosicaoCamera;
 
-        // Move o fundo um pouquinho menos que a câmera, criando o efeito
-        transform.position += new Vector3(movimentoCamera.x * multiplicadorParallax, movimentoCamera.y * multiplicadorParallax, 0);
+        // Move o fundo criando o efeito, MAS APENAS NO EIXO X. O Y fica em 0.
+        transform.position += new Vector3(movimentoCamera.x * multiplicadorParallax, 0, 0);
 
         // Atualiza a posição para o próximo frame
         ultimaPosicaoCamera = cameraDoJogo.position;

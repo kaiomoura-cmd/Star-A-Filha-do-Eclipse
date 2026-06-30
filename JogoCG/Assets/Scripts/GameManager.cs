@@ -4,13 +4,16 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("Persistência do Jogador")]
-    public string tagSpawnAlvo = "Spawn_Inicial"; // Guarda o ID do spawn onde o jogador deve nascer
-    public int modoAtualDoPlayer = 0; // 0 = Luz, 1 = Sombra (ou use o seu Enum original)
+    [Header("PersistÃªncia do Jogador")]
+    public string tagSpawnAlvo = "Spawn_Inicial";
+    public int modoAtualDoPlayer = 0; // 0 = Luz, 1 = Sombra
+    public int lightStarsSaved = 5;
+    public int shadowStarsSaved = 1;
+    public bool healthEverSaved = false; // true = jÃ¡ veio de outro ato
 
     void Awake()
     {
-        // Padrão Singleton para garantir que só exista um GameManager no jogo todo
+        // Padrï¿½o Singleton para garantir que sï¿½ exista um GameManager no jogo todo
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);

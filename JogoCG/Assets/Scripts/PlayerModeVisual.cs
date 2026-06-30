@@ -6,10 +6,16 @@ public class PlayerModeVisual : MonoBehaviour
     public Sprite luzParado;
     public Sprite luzAndando;
     public Sprite luzPulando;
+    public Sprite luzPulando2;
     public Sprite luzDash1;
     public Sprite luzDash2;
     public Sprite luzAtaque1;
     public Sprite luzAtaque2;
+    public Sprite luzAtaqueAereo1;
+    public Sprite luzAtaqueAereo2;
+    public Sprite luzOlhandoCima;
+    public Sprite luzOlhandoBaixo;
+    public Sprite luzAndandoTransicao;
 
     [Header("Sprites de Sombra")]
     public Sprite sombraParado;
@@ -18,6 +24,11 @@ public class PlayerModeVisual : MonoBehaviour
     public Sprite sombraPulando2;
     public Sprite sombraAtaque1;
     public Sprite sombraAtaque2;
+    public Sprite sombraAtaqueAereo1;
+    public Sprite sombraAtaqueAereo2;
+    public Sprite sombraOlhandoCima;
+    public Sprite sombraOlhandoBaixo;
+    public Sprite sombraAndandoTransicao;
 
     private Movement playerMovement;
 
@@ -138,14 +149,20 @@ public class PlayerModeVisual : MonoBehaviour
             {
                 playerMovement.spriteParado = luzParado;
                 playerMovement.spriteAndando = luzAndando;
+                playerMovement.spriteAndandoTransicao = luzAndandoTransicao;
                 playerMovement.spritePulando = luzPulando;
+                playerMovement.spritePulando2 = luzPulando2;
                 playerMovement.spriteDash1 = luzDash1;
                 playerMovement.spriteDash2 = luzDash2;
+                playerMovement.spriteOlhandoCima = luzOlhandoCima;
+                playerMovement.spriteOlhandoBaixo = luzOlhandoBaixo;
             }
             if (playerAttack != null)
             {
                 playerAttack.spriteAtaque1 = luzAtaque1;
                 playerAttack.spriteAtaque2 = luzAtaque2;
+                playerAttack.spriteAtaqueAereo1 = luzAtaqueAereo1;
+                playerAttack.spriteAtaqueAereo2 = luzAtaqueAereo2;
             }
         }
         else
@@ -155,13 +172,18 @@ public class PlayerModeVisual : MonoBehaviour
             {
                 playerMovement.spriteParado = sombraParado;
                 playerMovement.spriteAndando = sombraAndando;
+                playerMovement.spriteAndandoTransicao = sombraAndandoTransicao;
                 playerMovement.spritePulando = sombraPulando;
-                playerMovement.spritePulando = sombraPulando2;
+                playerMovement.spritePulando2 = sombraPulando2;
+                playerMovement.spriteOlhandoCima = sombraOlhandoCima;
+                playerMovement.spriteOlhandoBaixo = sombraOlhandoBaixo;
             }
             if (playerAttack != null)
             {
                 playerAttack.spriteAtaque1 = sombraAtaque1;
                 playerAttack.spriteAtaque2 = sombraAtaque2;
+                playerAttack.spriteAtaqueAereo1 = sombraAtaqueAereo1;
+                playerAttack.spriteAtaqueAereo2 = sombraAtaqueAereo2;
             }
         }
 
@@ -223,14 +245,20 @@ public class PlayerModeVisual : MonoBehaviour
             {
                 playerMovement.spriteParado = luzParado;
                 playerMovement.spriteAndando = luzAndando;
+                playerMovement.spriteAndandoTransicao = luzAndandoTransicao;
                 playerMovement.spritePulando = luzPulando;
+                playerMovement.spritePulando2 = luzPulando2;
                 playerMovement.spriteDash1 = luzDash1;
                 playerMovement.spriteDash2 = luzDash2;
+                playerMovement.spriteOlhandoCima = luzOlhandoCima;
+                playerMovement.spriteOlhandoBaixo = luzOlhandoBaixo;
             }
             if (playerAttack != null)
             {
                 playerAttack.spriteAtaque1 = luzAtaque1;
                 playerAttack.spriteAtaque2 = luzAtaque2;
+                playerAttack.spriteAtaqueAereo1 = luzAtaqueAereo1;
+                playerAttack.spriteAtaqueAereo2 = luzAtaqueAereo2;
             }
         }
         else
@@ -239,13 +267,18 @@ public class PlayerModeVisual : MonoBehaviour
             {
                 playerMovement.spriteParado = sombraParado;
                 playerMovement.spriteAndando = sombraAndando;
+                playerMovement.spriteAndandoTransicao = sombraAndandoTransicao;
                 playerMovement.spritePulando = sombraPulando;
-                playerMovement.spritePulando = sombraPulando2;
+                playerMovement.spritePulando2 = sombraPulando2;
+                playerMovement.spriteOlhandoCima = sombraOlhandoCima;
+                playerMovement.spriteOlhandoBaixo = sombraOlhandoBaixo;
             }
             if (playerAttack != null)
             {
                 playerAttack.spriteAtaque1 = sombraAtaque1;
                 playerAttack.spriteAtaque2 = sombraAtaque2;
+                playerAttack.spriteAtaqueAereo1 = sombraAtaqueAereo1;
+                playerAttack.spriteAtaqueAereo2 = sombraAtaqueAereo2;
             }
         }
     }

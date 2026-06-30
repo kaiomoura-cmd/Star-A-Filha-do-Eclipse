@@ -89,8 +89,8 @@ public class VignetteEffectManager : MonoBehaviour
 
         canvasObj.AddComponent<GraphicRaycaster>(); 
 
-        // Cria a imagem da Vinheta de Luz (Branca)
-        lightVignetteImage = CreateVignetteImage("LightVignette", new Color(1f, 1f, 1f, 0f), new Color(1f, 1f, 1f, 1f));
+        // Cria a imagem da Vinheta de Luz (Amarela)
+        lightVignetteImage = CreateVignetteImage("LightVignette", new Color(1f, 1f, 1f, 0f), new Color(1f, 0.95f, 0.2f, 1f));
         
         // Cria a imagem da Vinheta de Sombra (Preta)
         shadowVignetteImage = CreateVignetteImage("ShadowVignette", new Color(0f, 0f, 0f, 0f), new Color(0f, 0f, 0f, 1f));

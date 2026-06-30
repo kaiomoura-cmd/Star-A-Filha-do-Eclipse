@@ -309,8 +309,8 @@ GameObject:
   - component: {fileID: 6036266032944906146}
   - component: {fileID: 184107396073237904}
   - component: {fileID: 8986458414027383435}
-  - component: {fileID: 5095140361980132674}
   - component: {fileID: 3633919262625874668}
+  - component: {fileID: -3010439966970793544}
   m_Layer: 0
   m_Name: PLAYER
   m_TagString: Player
@@ -415,8 +415,14 @@ MonoBehaviour:
   spriteParado: {fileID: 21300000, guid: 5eee2ce087214fb4c810abbd3b60ab33, type: 3}
   spriteAndando: {fileID: 21300000, guid: b4ddb357560908e4a8bd51c3ccc0bfdb, type: 3}
   spritePulando: {fileID: 21300000, guid: cea06495836e3e1498428174e34b82da, type: 3}
+  spritePulando2: {fileID: 0}
+  tempoAnimacaoPulo: 0.2
   spriteDash1: {fileID: 21300000, guid: bd49a06f32506274bab12a1ac1a9670f, type: 3}
   spriteDash2: {fileID: 21300000, guid: bd49a06f32506274bab12a1ac1a9670f, type: 3}
+  spriteOlhandoCima: {fileID: 0}
+  spriteOlhandoBaixo: {fileID: 0}
+  spriteAndandoTransicao: {fileID: 0}
+  tempoAnimacaoAndar: 0.15
   tempoEntreFramesDash: 0.1
   wallCheck: {fileID: 7149887862337375399}
   wallLayer:
@@ -440,6 +446,9 @@ MonoBehaviour:
   sensibility: 0.7
   isGrounded: 0
   input: 0
+  isLookingUp: 0
+  isLookingDown: 0
+  lookHoldThreshold: 0.4
 --- !u!114 &6036266032944906146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,6 +553,8 @@ MonoBehaviour:
   renderizadorSprite: {fileID: 184107396073237904}
   spriteAtaque1: {fileID: 21300000, guid: 71c1cd8a57f7f5b44b1ab4e2aec1383d, type: 3}
   spriteAtaque2: {fileID: 21300000, guid: c6456245dc9e5a64991f6f32313afdd6, type: 3}
+  spriteAtaqueAereo1: {fileID: 0}
+  spriteAtaqueAereo2: {fileID: 0}
   scriptMovimento: {fileID: 4998434101256093111}
   tempoEntreFrames: 0.1
   previewAttackPose: 1
@@ -562,21 +573,6 @@ MonoBehaviour:
   shadowRange: 8
   shadowAttackDuration: 0.5
   useLegacyInput: 0
---- !u!114 &5095140361980132674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6731398515606855682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb95267fc4ac39946a37ef9dd19ec043, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHealth: 100
-  currentHealth: 0
-  enableDebugKeys: 1
 --- !u!114 &3633919262625874668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -591,17 +587,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModeVisual
   luzParado: {fileID: 21300000, guid: 5eee2ce087214fb4c810abbd3b60ab33, type: 3}
   luzAndando: {fileID: 21300000, guid: b4ddb357560908e4a8bd51c3ccc0bfdb, type: 3}
-  luzPulando: {fileID: 21300000, guid: cea06495836e3e1498428174e34b82da, type: 3}
+  luzPulando: {fileID: 72307781, guid: ca331d4e835ce2c4eb16afd549ea8d61, type: 3}
+  luzPulando2: {fileID: 21300000, guid: cea06495836e3e1498428174e34b82da, type: 3}
   luzDash1: {fileID: 21300000, guid: bd49a06f32506274bab12a1ac1a9670f, type: 3}
   luzDash2: {fileID: 21300000, guid: bd49a06f32506274bab12a1ac1a9670f, type: 3}
   luzAtaque1: {fileID: 21300000, guid: 71c1cd8a57f7f5b44b1ab4e2aec1383d, type: 3}
   luzAtaque2: {fileID: 21300000, guid: c6456245dc9e5a64991f6f32313afdd6, type: 3}
+  luzAtaqueAereo1: {fileID: -757218039, guid: b2aae58f6ebfaec46afa862ef28d2ce3, type: 3}
+  luzAtaqueAereo2: {fileID: -757218039, guid: b2aae58f6ebfaec46afa862ef28d2ce3, type: 3}
+  luzOlhandoCima: {fileID: -338663000, guid: e321cc7048e69f049ae9059e284008b8, type: 3}
+  luzOlhandoBaixo: {fileID: 972795721, guid: 158df0d679edb4e47b47c9a7579502ea, type: 3}
+  luzAndandoTransicao: {fileID: -1553037088, guid: f7f2ae78c7975fe46b8b0224bc25fdeb, type: 3}
   sombraParado: {fileID: 21300000, guid: 7502d7074c726e04bb7a2a7dda010108, type: 3}
   sombraAndando: {fileID: 21300000, guid: d10a82ddc93798f4e874837dd7bc46d0, type: 3}
   sombraPulando: {fileID: 21300000, guid: bde80e2b0cea5d948bf0a545804fb5b5, type: 3}
   sombraPulando2: {fileID: 21300000, guid: f1e7bbd98c2fc8b49af1ed0883b67f36, type: 3}
   sombraAtaque1: {fileID: 21300000, guid: 2ad9c4da332fb1440a9642adf918b070, type: 3}
-  sombraAtaque2: {fileID: 21300000, guid: a0d96f528a37c7d498c259cbae2d1c19, type: 3}
+  sombraAtaque2: {fileID: 21300000, guid: c0e8505ad2471b240bd9f792c1d9872a, type: 3}
+  sombraAtaqueAereo1: {fileID: -1368981644, guid: b25e8fffb865236498bf2362ec8df451, type: 3}
+  sombraAtaqueAereo2: {fileID: -1368981644, guid: b25e8fffb865236498bf2362ec8df451, type: 3}
+  sombraOlhandoCima: {fileID: -166727945, guid: 05117e281bdab004a8d58ffa5904db9c, type: 3}
+  sombraOlhandoBaixo: {fileID: -249455559, guid: 4bcd646962f94f046b8b66071e36ca33, type: 3}
+  sombraAndandoTransicao: {fileID: 1631648436, guid: 380e788f7bef1d24ea8b93f9f6a4a565, type: 3}
   lightModeTint: {r: 1, g: 0.97, b: 0.85, a: 1}
   shadowModeTint: {r: 0.75, g: 0.55, b: 1, a: 1}
   burstDuration: 0.4
@@ -611,6 +618,22 @@ MonoBehaviour:
   auraAlpha: 0.2
   auraSortingOrder: -1
   transitionDuration: 0.3
+--- !u!114 &-3010439966970793544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6731398515606855682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb95267fc4ac39946a37ef9dd19ec043, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  totalStars: 6
+  lightStars: 5
+  shadowStars: 1
+  enableDebugKeys: 1
 --- !u!1001 &8831664230223642076
 PrefabInstance:
   m_ObjectHideFlags: 0

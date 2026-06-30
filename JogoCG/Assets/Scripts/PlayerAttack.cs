@@ -10,11 +10,18 @@ public class PlayerAttack : MonoBehaviour
     public SpriteRenderer renderizadorSprite;
     public Sprite spriteAtaque1;
     public Sprite spriteAtaque2;
+    public Sprite spriteAtaqueAereo1;
+    public Sprite spriteAtaqueAereo2;
     public Movement scriptMovimento;
     public float tempoEntreFrames = 0.1f;
 
+    [Tooltip("Raio de detecção de inimigos no ataque")]
+    public float attackRadius = 1.5f;
+    [Tooltip("Layer dos inimigos")]
+    public LayerMask enemyLayer = -1;
+
     [Header("Pré-visualização no Editor")]
-    [Tooltip("Marque para ver a pose de ataque e posicionar os marcadores. Desmarque depois.")]
+    [Tooltip("Marque para ver a pose de ataque e posicionar os marcadores.")]
     public bool previewAttackPose = false;
 
     [Header("Modo de Jogo")]
@@ -92,6 +99,9 @@ public class PlayerAttack : MonoBehaviour
     {
         StartCoroutine(AnimarAtaque());
 
+        // Dano nos inimigos (baseado no modo atual)
+        PerformAttackDamage();
+
         if (currentMode == PlayerMode.Luz)
         {
             TriggerLightAttack();
@@ -99,6 +109,31 @@ public class PlayerAttack : MonoBehaviour
         else
         {
             TriggerShadowAttack();
+        }
+    }
+
+    void PerformAttackDamage()
+    {
+        Vector3 origin = (swordMarker != null) ? swordMarker.position : transform.position;
+        Collider[] hits = Physics.OverlapSphere(origin, attackRadius, enemyLayer);
+        PlayerHealth.DamageType dmgType = (currentMode == PlayerMode.Luz)
+            ? PlayerHealth.DamageType.Light : PlayerHealth.DamageType.Shadow;
+
+        foreach (Collider col in hits)
+        {
+            Enemy enemy = col.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(dmgType);
+                Debug.Log($"Acertou inimigo com dano {dmgType}!");
+                continue;
+            }
+            FlyingEnemy flying = col.GetComponent<FlyingEnemy>();
+            if (flying != null)
+            {
+                flying.TakeDamage(dmgType);
+                Debug.Log($"Acertou inimigo voador com dano {dmgType}!");
+            }
         }
     }
 
@@ -317,21 +352,27 @@ public class PlayerAttack : MonoBehaviour
         // 1. Trava o script de movimento
         if (scriptMovimento != null) scriptMovimento.isAttacking = true;
 
+        // Verificar se está no ar e tem AMBOS sprites aéreos (evita misturar aéreo com chão)
+        bool noAr = scriptMovimento != null && !scriptMovimento.isGrounded;
+        bool temAereo = noAr && spriteAtaqueAereo1 != null && spriteAtaqueAereo2 != null;
+        Sprite atk1 = temAereo ? spriteAtaqueAereo1 : spriteAtaque1;
+        Sprite atk2 = temAereo ? spriteAtaqueAereo2 : spriteAtaque2;
+
         // 2. Coloca a pose 1 (Preparação)
-        if (renderizadorSprite != null && spriteAtaque1 != null)
-            renderizadorSprite.sprite = spriteAtaque1;
+        if (renderizadorSprite != null && atk1 != null)
+            renderizadorSprite.sprite = atk1;
 
         // Espera uma fração de segundo
         yield return new WaitForSeconds(tempoEntreFrames);
 
         // 3. Coloca a pose 2 (Impacto do golpe)
-        if (renderizadorSprite != null && spriteAtaque2 != null)
-            renderizadorSprite.sprite = spriteAtaque2;
+        if (renderizadorSprite != null && atk2 != null)
+            renderizadorSprite.sprite = atk2;
 
-        // Espera o ataque terminar (você pode usar sua variável lightAttackDuration aqui se quiser)
+        // Espera o ataque terminar
         yield return new WaitForSeconds(0.2f);
 
-        // 4. Destrava o movimento para ele voltar a ficar "Parado"
+        // 4. Destrava o movimento
         if (scriptMovimento != null) scriptMovimento.isAttacking = false;
     }
 }

@@ -5,9 +5,14 @@ using UnityEngine.InputSystem;
 
 public class AtivarCutscene : MonoBehaviour
 {
-    [Header("Configura��es da C�mera")]
+    [Header("Configurações da Câmera")]
     public CinemachineCamera cameraDaCutscene;
     public float velocidadeDaCamera = 0.5f;
+    [Tooltip("Alvo que a câmera deve olhar durante a cutscene. Se vazio, olha pro player.")]
+    public Transform lookTarget;
+    [Range(0f, 1f)]
+    [Tooltip("Ponto inicial da câmera no trilho (0 = começo, 1 = fim)")]
+    public float cameraStartPosition = 0f;
 
     [Header("Refer�ncias da Personagem (Preenchidas Automaticamente)")]
     public SpriteRenderer renderizadorPlayer;
@@ -60,7 +65,8 @@ public class AtivarCutscene : MonoBehaviour
 
             if (cameraDaCutscene != null)
             {
-                cameraDaCutscene.LookAt = outro.transform;
+                // Olhar pro alvo configurado ou pro player como fallback
+                cameraDaCutscene.LookAt = (lookTarget != null) ? lookTarget : outro.transform;
             }
 
             StartCoroutine(TocarCutscene());
@@ -84,8 +90,8 @@ public class AtivarCutscene : MonoBehaviour
             scriptMovimento.enabled = false; // Desliga o script de movimento para evitar o bug do Dash
         }
 
-        // Zera a posi��o e liga a c�mera cinematogr�fica
-        splineDolly.CameraPosition = 0;
+        // Zera a posição e liga a câmera cinematográfica
+        splineDolly.CameraPosition = cameraStartPosition;
         mudouParaCostas = false;
         cameraDaCutscene.gameObject.SetActive(true);
 

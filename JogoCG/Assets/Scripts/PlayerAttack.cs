@@ -139,6 +139,11 @@ public class PlayerAttack : MonoBehaviour
             {
                 brokk.TakeDamage(dmgType);
             }
+            Seraphin seraphin = col.GetComponent<Seraphin>();
+            if (seraphin != null)
+            {
+                seraphin.TakeDamage(dmgType);
+            }
         }
     }
 

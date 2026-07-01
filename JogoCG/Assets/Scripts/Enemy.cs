@@ -52,10 +52,11 @@ public class Enemy : MonoBehaviour
     private float animTimer;
     private bool showingFrame1 = true;
     private EnemyState currentState = EnemyState.MalignoLight;
-    private DamageSource damageSource;
     private bool isDead = false;
-    private bool canDamage = true;
     private bool isKnockedBack = false;
+    private bool canDamage = true;
+    private DamageSource damageSource;
+    public bool IsDead => isDead;
 
     void Start()
     {

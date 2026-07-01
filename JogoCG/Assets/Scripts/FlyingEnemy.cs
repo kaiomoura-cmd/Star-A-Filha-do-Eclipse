@@ -60,6 +60,8 @@ public class FlyingEnemy : MonoBehaviour
     private bool isInvincible = false;
     private bool isDisabled = false;
     private bool isDead = false;
+    public bool IsDead => isDead;
+    public bool IsDisabled => isDisabled;
     private bool isKnockedBack = false;
     private bool isDiving = false;
 

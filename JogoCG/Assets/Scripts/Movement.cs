@@ -68,6 +68,7 @@ public class Movement : MonoBehaviour
     [Header("Detecção de Chão")]
     public float sensibility = 0.7f;
     public bool isGrounded = false;
+    public Vector3 lastSafePosition; // Última posição em chão firme
 
     // Input armazenado
     [HideInInspector] public float input;
@@ -119,6 +120,7 @@ public class Movement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
+        lastSafePosition = transform.position;
 
         playerAttack = GetComponent<PlayerAttack>();
         
@@ -481,6 +483,7 @@ public class Movement : MonoBehaviour
         if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
+            lastSafePosition = transform.position;
             consecutiveSameWallJumps = 0;
             lastWallJumpSide = 0f;
         }

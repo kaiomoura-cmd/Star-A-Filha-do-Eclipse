@@ -76,6 +76,7 @@ public class HealthUI : MonoBehaviour
 
         int lightCount = playerHealth.LightStars;
         int shadowCount = playerHealth.ShadowStars;
+        Debug.Log($"HUD: {lightCount}L/{shadowCount}S");
 
         for (int i = 0; i < 6; i++)
         {

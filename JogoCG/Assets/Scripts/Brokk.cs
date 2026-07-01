@@ -46,6 +46,7 @@ public class Brokk : MonoBehaviour
     private Rigidbody rb;
     private SpriteRenderer spriteRenderer;
     private bool isDead = false;
+    public bool IsDead => isDead;
     private bool isInvincible = false;
     private bool isAttacking = false;
     private float walkAnimTimer;

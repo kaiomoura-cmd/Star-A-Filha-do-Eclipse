@@ -7,6 +7,7 @@ public class GerenciadorDeMenu : MonoBehaviour
 
     public void BotaoJogar()
     {
+        Debug.Log("Botao Jogar clicado! Carregando: " + nomeDaPrimeiraFase);
         SceneManager.LoadScene(nomeDaPrimeiraFase);
     }
 

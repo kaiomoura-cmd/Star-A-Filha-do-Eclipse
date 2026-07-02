@@ -2,47 +2,38 @@ using UnityEngine;
 
 public class PlataformaModo : MonoBehaviour
 {
-    [Header("Configuração da Plataforma")]
+    [Header("ConfiguraÃ§Ã£o da Plataforma")]
     [Tooltip("Essa plataforma deve aparecer em qual modo?")]
     public PlayerAttack.PlayerMode modoDestaPlataforma;
 
-    // Referências
     private PlayerAttack player;
-    private Renderer meuRenderizador;
+    private SpriteRenderer meuSprite;
     private Collider meuColisor;
 
     void Start()
     {
-        // Pega os componentes do próprio bloquinho (visual e física)
-        meuRenderizador = GetComponent<Renderer>();
+        meuSprite = GetComponent<SpriteRenderer>();
         meuColisor = GetComponent<Collider>();
-
-        // Procura a personagem no mapa automaticamente
-        player = Object.FindFirstObjectByType<PlayerAttack>();
-
-        if (player == null)
-        {
-            Debug.LogWarning("Plataforma não encontrou o Player no mapa!");
-        }
     }
 
     void Update()
     {
+        // Buscar player se nÃ£o encontrou (spawn atrasa)
+        if (player == null)
+        {
+            GameObject go = GameObject.FindGameObjectWithTag("Player");
+            if (go != null)
+                player = go.GetComponent<PlayerAttack>();
+        }
+
         if (player == null) return;
 
-        // A mágica acontece aqui: A plataforma deve estar ativa se o modo dela for IGUAL ao modo atual do player
         bool deveEstarAtiva = (player.currentMode == modoDestaPlataforma);
 
-        // Liga ou desliga o visual (pra sumir da tela)
-        if (meuRenderizador != null && meuRenderizador.enabled != deveEstarAtiva)
-        {
-            meuRenderizador.enabled = deveEstarAtiva;
-        }
+        if (meuSprite != null && meuSprite.enabled != deveEstarAtiva)
+            meuSprite.enabled = deveEstarAtiva;
 
-        // Liga ou desliga a física (pra personagem cair através dela)
         if (meuColisor != null && meuColisor.enabled != deveEstarAtiva)
-        {
             meuColisor.enabled = deveEstarAtiva;
-        }
     }
 }

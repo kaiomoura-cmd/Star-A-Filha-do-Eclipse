@@ -15,6 +15,22 @@ ataque e em quais inimigos ele consegue causar dano.
 
 ---
 
+## Gameplay
+
+**Tutorial — plataforma e combate no modo Luz.** A Star atravessa o campo, dá dash e ataca com o
+projétil:
+
+![Tutorial: Star atravessa o campo aberto, dá dash e ataca com o projétil de Luz](img/gameplay-tutorial.gif)
+
+**Boss final — luta contra Seraphin no templo,** que invoca cristais de espinhos (a Star aparece em
+**modo Sombra**):
+
+![Luta contra o boss Seraphin no interior do templo, com cristais de espinhos sendo invocados](img/gameplay-boss-seraphin.gif)
+
+*Todo o material visual — sprites, cenários, efeitos e logo — é de autoria de Miguel Nogueira Rangel.*
+
+---
+
 ## Mecânicas
 
 ### Dois modos, duas físicas
